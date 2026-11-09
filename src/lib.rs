@@ -243,9 +243,16 @@ impl CuckooMap {
         let over_target = |size: usize| next_len * 100 > size as u128 * 2 * target;
         let mut size = self.slots_per_table();
         let limit = self.config.relocation_limit;
-        if !over_target(size) && self.tables.place(entry, limit, &mut trace) {
-            self.len += 1;
-            return Ok(None);
+        if !over_target(size) {
+            let mut events = Vec::new();
+            let placed = self
+                .tables
+                .place(entry, limit, &mut |event| events.push(event));
+            self.len += usize::from(placed);
+            events.into_iter().for_each(&mut trace);
+            if placed {
+                return Ok(None);
+            }
         }
 
         let mut seed_state = self.seed_state;
