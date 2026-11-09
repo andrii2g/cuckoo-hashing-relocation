@@ -1,3 +1,4 @@
+mod demo;
 mod workload;
 
 use cuckoo_hashing_relocation::Config;
@@ -15,6 +16,12 @@ fn run() -> Result<(), Box<dyn Error>> {
     let args: Vec<_> = std::env::args().skip(1).collect();
     if args.is_empty() || args[0] == "--help" {
         println!("Usage: cargo run -- <uniform|clustered|collision-heavy> [operations] [seed] [slots-per-table] [relocation-limit] [target-load-percent]");
+        println!("       cargo run -- demo");
+        return Ok(());
+    }
+    if args[0] == "demo" && args.len() == 1 {
+        demo::write_examples(Path::new("artifacts"))?;
+        println!("Wrote artifacts/relocation.svg and artifacts/cycle.svg");
         return Ok(());
     }
     if args.len() > 6 {
